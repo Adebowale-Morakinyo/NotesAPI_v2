@@ -32,6 +32,27 @@ class NoteResource(MethodView):
         return note_schema.dump(note), 200
 
     @jwt_required()  # Protect this route with JWT
+    def get(self):
+        current_user = get_jwt_identity()
+        sort_by = request.args.get('sort_by', 'date')
+        order = request.args.get('order', 'desc')
+        tag = request.args.get('tag')
+
+        query = Note.query.filter_by(user_id=current_user)
+
+        if tag:
+            query = query.filter(Note.tags.ilike(f"%{tag}%"))
+
+        if sort_by == 'date':
+            query = query.order_by(Note.date.desc() if order == 'desc' else Note.date)
+        elif sort_by == 'title':
+            query = query.order_by(Note.title.desc() if order == 'desc' else Note.title)
+
+        notes = query.all()
+        note_schema = NoteSchema(many=True)
+        return note_schema.dump(notes), 200
+
+    @jwt_required()  # Protect this route with JWT
     def put(self, note_id):
         current_user = get_jwt_identity()
         note = Note.query.get_or_404(note_id)

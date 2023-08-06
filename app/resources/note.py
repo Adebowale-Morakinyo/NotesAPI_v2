@@ -33,24 +33,27 @@ class NoteResource(MethodView):
 
     @jwt_required()  # Protect this route with JWT
     def get(self):
-        current_user = get_jwt_identity()
-        sort_by = request.args.get('sort_by', 'date')
-        order = request.args.get('order', 'desc')
-        tag = request.args.get('tag')
+        try:
+            current_user = get_jwt_identity()
+            sort_by = request.args.get('sort_by', 'date')
+            order = request.args.get('order', 'desc')
+            tag = request.args.get('tag')
 
-        query = Note.query.filter_by(user_id=current_user)
+            query = Note.query.filter_by(user_id=current_user)
 
-        if tag:
-            query = query.filter(Note.tags.ilike(f"%{tag}%"))
+            if tag:
+                query = query.filter(Note.tags.ilike(f"%{tag}%"))
 
-        if sort_by == 'date':
-            query = query.order_by(Note.date.desc() if order == 'desc' else Note.date)
-        elif sort_by == 'title':
-            query = query.order_by(Note.title.desc() if order == 'desc' else Note.title)
+            if sort_by == 'date':
+                query = query.order_by(Note.date.desc() if order == 'desc' else Note.date)
+            elif sort_by == 'title':
+                query = query.order_by(Note.title.desc() if order == 'desc' else Note.title)
 
-        notes = query.all()
-        note_schema = NoteSchema(many=True)
-        return note_schema.dump(notes), 200
+            notes = query.all()
+            note_schema = NoteSchema(many=True)
+            return note_schema.dump(notes), 200
+        except Exception as e:
+            return {'message': 'An error occurred while processing your request'}, 500
 
     @jwt_required()  # Protect this route with JWT
     def put(self, note_id):

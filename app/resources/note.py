@@ -12,13 +12,22 @@ note_bp = Blueprint('notes', 'notes', url_prefix='/notes')
 
 class NoteResource(MethodView):
 
+    @jwt_required()  # Protect this route with JWT
     def post(self):
-        data = request.get_json()
-        note_schema = NoteSchema()
-        note = note_schema.load(data)
-        db.session.add(note)
-        db.session.commit()
-        return note_schema.dump(note), 201
+        try:
+            current_user = get_jwt_identity()
+            data = request.get_json()
+
+            note_schema = NoteSchema()
+            note = note_schema.load(data)
+            note.user_id = current_user
+
+            db.session.add(note)
+            db.session.commit()
+
+            return note_schema.dump(note), 201
+        except Exception as e:
+            return {'message': 'An error occurred while processing your request'}, 500
 
     @jwt_required()  # Protect this route with JWT
     def get(self, note_id):
@@ -92,3 +101,4 @@ class NoteResource(MethodView):
 
 note_bp.add_url_rule('', view_func=NoteResource.as_view('note'))
 note_bp.add_url_rule('/<int:note_id>', view_func=NoteResource.as_view('single_note'))
+note_bp.add_url_rule('/create', view_func=NoteResource.as_view('create_note'))

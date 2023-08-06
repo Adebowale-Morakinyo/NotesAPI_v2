@@ -35,6 +35,8 @@ class NoteResource(MethodView):
     def get(self):
         try:
             current_user = get_jwt_identity()
+            page = request.args.get('page', 1, type=int)
+            per_page = request.args.get('per_page', 10, type=int)
             sort_by = request.args.get('sort_by', 'date')
             order = request.args.get('order', 'desc')
             tag = request.args.get('tag')
@@ -49,9 +51,15 @@ class NoteResource(MethodView):
             elif sort_by == 'title':
                 query = query.order_by(Note.title.desc() if order == 'desc' else Note.title)
 
-            notes = query.all()
+            notes = query.paginate(page, per_page, error_out=False)
             note_schema = NoteSchema(many=True)
-            return note_schema.dump(notes), 200
+            return {
+                'notes': note_schema.dump(notes.items),
+                'page': notes.page,
+                'per_page': notes.per_page,
+                'total_pages': notes.pages,
+                'total_notes': notes.total
+            }, 200
         except Exception as e:
             return {'message': 'An error occurred while processing your request'}, 500
 

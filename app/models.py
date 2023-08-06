@@ -10,6 +10,8 @@ class Note(db.Model):
     tags = db.Column(db.String(255))
     date = db.Column(db.DateTime, default=db.func.now(), nullable=False)
 
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
 
 class User(db.Model):
     # Fields for the User model

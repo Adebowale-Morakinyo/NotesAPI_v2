@@ -2,7 +2,13 @@ from flask_smorest import Blueprint
 from flask.views import MethodView
 from flask import request
 
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import (
+    jwt_required,
+    get_raw_jwt,
+    create_access_token,
+    jwt_manager,
+    blacklist,
+)
 from flask_jwt_extended.exceptions import JWTDecodeError
 
 from app.models import User
@@ -53,7 +59,17 @@ class UserResource(MethodView):
         except Exception as e:
             return {'message': 'An error occurred while processing your request'}, 500
 
+    @jwt_required()
+    def logout(self):
+        try:
+            jti = get_raw_jwt()['jti']
+            blacklist.add(jti)
+            return {'message': 'Logged out successfully'}, 200
+        except JWTDecodeError:
+            return {'message': 'An error occurred while processing your request'}, 500
+
 
 # Add the UserResource as a view to the user_bp blueprint
 user_bp.add_url_rule('/register', view_func=UserResource.as_view('register_user'))
 user_bp.add_url_rule('/login', view_func=UserResource.as_view('login_user'))
+user_bp.add_url_rule('/logout', view_func=UserResource.as_view('logout_user'))  # Add this line

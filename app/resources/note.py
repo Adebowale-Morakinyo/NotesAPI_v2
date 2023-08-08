@@ -42,6 +42,19 @@ class NoteResource(MethodView):
 
     @jwt_required()  # Protect this route with JWT
     def get(self):
+        """
+        Retrieve a list of notes with optional tag filtering.
+
+        Args:
+            page (int, optional): Page number for pagination. Default is 1.
+            per_page (int, optional): Number of items per page. Default is 10.
+            sort_by (str, optional): Field to sort by ("date" or "title"). Default is "date".
+            order (str, optional): Sort order ("asc" or "desc"). Default is "desc".
+            tag (str, optional): Filter notes by tag (case-insensitive).
+
+        Returns:
+            dict: Paginated list of notes and pagination information.
+        """
         try:
             current_user = get_jwt_identity()
             page = request.args.get('page', 1, type=int)

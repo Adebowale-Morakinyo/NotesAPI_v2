@@ -2,6 +2,9 @@ from flask_smorest import Blueprint
 from flask.views import MethodView
 from flask import request
 
+from flask_jwt_extended import create_access_token
+from flask_jwt_extended.exceptions import JWTDecodeError
+
 from app.models import User
 from app.schemas.user import UserRegistrationSchema
 from app import db
@@ -34,5 +37,23 @@ class UserResource(MethodView):
         except Exception as e:
             return {'message': 'An error occurred while processing your request'}, 500
 
+    def login(self):
+        try:
+            data = request.get_json()
 
+            user_schema = UserRegistrationSchema(only=('username', 'password'))
+            user_data = user_schema.load(data)
+
+            user = User.query.filter_by(username=user_data['username']).first()
+            if user and user.check_password(user_data['password']):
+                access_token = create_access_token(identity=user.id)
+                return {'access_token': access_token}, 200
+            else:
+                return {'message': 'Invalid username or password'}, 401
+        except Exception as e:
+            return {'message': 'An error occurred while processing your request'}, 500
+
+
+# Add the UserResource as a view to the user_bp blueprint
 user_bp.add_url_rule('/register', view_func=UserResource.as_view('register_user'))
+user_bp.add_url_rule('/login', view_func=UserResource.as_view('login_user'))

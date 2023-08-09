@@ -72,4 +72,4 @@ class UserResource(MethodView):
 # Add the UserResource as a view to the user_bp blueprint
 user_bp.add_url_rule('/register', view_func=UserResource.as_view('register_user'))
 user_bp.add_url_rule('/login', view_func=UserResource.as_view('login_user'))
-user_bp.add_url_rule('/logout', view_func=UserResource.as_view('logout_user'))  # Add this line
+user_bp.add_url_rule('/logout', view_func=UserResource.as_view('logout_user'))

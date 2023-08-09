@@ -3,7 +3,7 @@ from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identi
 
 from app import db
 from app.models import User
-from app.schemas.user import UserSchema
+from app.schemas.user import UserRegistrationSchema
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 
@@ -11,7 +11,7 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 @auth_bp.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
-    user_schema = UserSchema()
+    user_schema = UserRegistrationSchema()
     user = user_schema.load(data)
     db.session.add(user)
     db.session.commit()

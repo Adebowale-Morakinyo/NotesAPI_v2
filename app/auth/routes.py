@@ -1,7 +1,6 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 
-from app import db
 from app.models import User
 from app.schemas.user import UserRegistrationSchema
 
@@ -13,8 +12,18 @@ def register():
     data = request.get_json()
     user_schema = UserRegistrationSchema()
     user = user_schema.load(data)
-    db.session.add(user)
-    db.session.commit()
+
+    existing_user = User.query.filter_by(username=user.username).first()
+    if existing_user:
+        return {'message': 'Username already exists'}, 400
+
+    existing_email = User.query.filter_by(email=user.email).first()
+    if existing_email:
+        return {'message': 'Email already exists'}, 400
+
+    user.set_password(data['password'])
+    user.save_to_db()  # Use the new method to save the user to the database
+
     return user_schema.dump(user), 201
 
 

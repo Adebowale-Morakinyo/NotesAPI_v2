@@ -6,21 +6,17 @@ from db import db
 from app.auth.routes import auth_bp
 from app.resources.note import note_bp
 
-jwt = JWTManager()
+app = Flask(__name__)
 
+app.config["PROPAGATE_EXCEPTIONS"] = True
+app.config["API_TITLE"] = "Notes API"
+app.config["API_VERSION"] = "v2"
+app.config["OPENAPI_VERSION"] = "3.0.3"
+app.config["OPENAPI_URL_PREFIX"] = "/"
+app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
+app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object('config.Config')
+api = Api(app)
 
-    db.init_app(app)
-    jwt.init_app(app)
-
-    api = Api(app, spec_kwargs={'title': 'Notes API', 'version': 'v2'})
-    api.register_blueprint(auth_bp)
-    api.register_blueprint(note_bp)
-
-    with app.app_context():
-        db.create_all()  # Initialize database
-
-    return app
+api.register_blueprint(auth_bp)
+api.register_blueprint(note_bp)

@@ -1,9 +1,7 @@
-Flask==2.1.1
-Flask-JWT-Extended==4.3.0
-Flask-SQLAlchemy==2.5.1
-SQLAlchemy==1.4.23  # Replace with a compatible version
-Flask-Smorest==0.32.0
-Jinja2==3.0.3
-MarkupSafe==2.1.2
-passlib==1.7.4
-python-dotenv==0.18.0
+flask
+Flask-JWT-Extended
+Flask-Smorest
+Flask-SQLAlchemy
+passlib
+marshmallow
+python-dotenv

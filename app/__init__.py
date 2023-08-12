@@ -1,22 +1,29 @@
 from flask import Flask
-from flask_jwt_extended import JWTManager
 from flask_smorest import Api
+from flask_jwt_extended import JWTManager
+
 from db import db
+jwt = JWTManager()
 
-from app.auth.routes import auth_bp
-from app.resources.note import note_bp
 
-app = Flask(__name__)
+def create_app(config_name="development"):
+    app = Flask(__name__)
+    app.config.from_object(f"config.{config_name.capitalize()}Config")
 
-app.config["PROPAGATE_EXCEPTIONS"] = True
-app.config["API_TITLE"] = "Notes API"
-app.config["API_VERSION"] = "v2"
-app.config["OPENAPI_VERSION"] = "3.0.3"
-app.config["OPENAPI_URL_PREFIX"] = "/"
-app.config["OPENAPI_SWAGGER_UI_PATH"] = "/swagger-ui"
-app.config["OPENAPI_SWAGGER_UI_URL"] = "https://cdn.jsdelivr.net/npm/swagger-ui-dist/"
+    db.init_app(app)
+    jwt.init_app(app)
 
-api = Api(app)
+    api = Api(app)
 
-api.register_blueprint(auth_bp)
-api.register_blueprint(note_bp)
+    from resources.note import note_blp
+    from resources.user import user_blp
+    from resources.tag import tag_blp
+
+    api.register_blueprint(note_blp)
+    api.register_blueprint(user_blp)
+    api.register_blueprint(tag_blp)
+
+    with app.app_context():
+        db.create_all()
+
+    return app

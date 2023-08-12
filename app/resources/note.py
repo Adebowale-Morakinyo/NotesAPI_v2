@@ -1,127 +1,59 @@
-from flask_smorest import Blueprint
 from flask.views import MethodView
-from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_smorest import Blueprint, abort
+from sqlalchemy.exc import SQLAlchemyError
 
-from app import db
+from db import db
 from app.models import Note
-from app.schemas.note import NoteSchema
+from app.schamas import NoteSchema, NoteUpdateSchema
 
-note_bp = Blueprint('notes', 'notes', url_prefix='/notes')
+note_blp = Blueprint("Notes", "notes", description="Operations on notes")
 
 
+@note_blp.route("/note/<int:note_id>")
 class NoteResource(MethodView):
+    @note_blp.response(200, NoteSchema)
+    def get(self, note_id):
+        note = Note.query.get_or_404(note_id)
+        return note
 
-    @jwt_required()  # Protect this route with JWT
-    def post(self):
+    def delete(self, note_id):
+        note = Note.query.get_or_404(note_id)
+        db.session.delete(note)
+        db.session.commit()
+        return {"message": "Note deleted."}
+
+    @note_blp.arguments(NoteUpdateSchema)
+    @note_blp.response(200, NoteSchema)
+    def put(self, note_data, note_id):
+        note = Note.query.get(note_id)
+
+        if note:
+            note.title = note_data["title"]
+            note.content = note_data["content"]
+        else:
+            note = Note(id=note_id, **note_data)
+
+        db.session.add(note)
+        db.session.commit()
+
+        return note
+
+
+@note_blp.route("/note")
+class NoteList(MethodView):
+    @note_blp.response(200, NoteSchema(many=True))
+    def get(self):
+        return Note.query.all()
+
+    @note_blp.arguments(NoteSchema)
+    @note_blp.response(201, NoteSchema)
+    def post(self, note_data):
+        note = Note(**note_data)
+
         try:
-            current_user = get_jwt_identity()
-            data = request.get_json()
-
-            note_schema = NoteSchema()
-            note = note_schema.load(data)
-            note.user_id = current_user
-
             db.session.add(note)
             db.session.commit()
+        except SQLAlchemyError:
+            abort(500, message="An error occurred while inserting the note.")
 
-            return note_schema.dump(note), 201
-        except Exception as e:
-            return {'message': 'An error occurred while processing your request'}, 500
-
-    @jwt_required()  # Protect this route with JWT
-    def get(self, note_id):
-        current_user = get_jwt_identity()
-        note = Note.query.get_or_404(note_id)
-
-        if note.user_id != current_user:
-            return '', 403  # Forbidden
-
-        note_schema = NoteSchema()
-        return note_schema.dump(note), 200
-
-    @jwt_required()  # Protect this route with JWT
-    def get(self):
-        """
-        Retrieve a list of notes with optional tag filtering.
-
-        Args:
-            page (int, optional): Page number for pagination. Default is 1.
-            per_page (int, optional): Number of items per page. Default is 10.
-            sort_by (str, optional): Field to sort by ("date" or "title"). Default is "date".
-            order (str, optional): Sort order ("asc" or "desc"). Default is "desc".
-            tag (str, optional): Filter notes by tag (case-insensitive).
-
-        Returns:
-            dict: Paginated list of notes and pagination information.
-        """
-        try:
-            current_user = get_jwt_identity()
-            page = request.args.get('page', 1, type=int)
-            per_page = request.args.get('per_page', 10, type=int)
-            sort_by = request.args.get('sort_by', 'date')
-            order = request.args.get('order', 'desc')
-            tag = request.args.get('tag')
-
-            query = Note.query.filter_by(user_id=current_user)
-
-            if tag:
-                query = query.filter(Note.tags.ilike(f"%{tag}%"))
-
-            if sort_by == 'date':
-                query = query.order_by(Note.date.desc() if order == 'desc' else Note.date)
-            elif sort_by == 'title':
-                query = query.order_by(Note.title.desc() if order == 'desc' else Note.title)
-
-            notes = query.paginate(page, per_page, error_out=False)
-            note_schema = NoteSchema(many=True)
-            return {
-                'notes': note_schema.dump(notes.items),
-                'page': notes.page,
-                'per_page': notes.per_page,
-                'total_pages': notes.pages,
-                'total_notes': notes.total
-            }, 200
-        except Exception as e:
-            return {'message': 'An error occurred while processing your request'}, 500
-
-    @jwt_required()  # Protect this route with JWT
-    def put(self, note_id):
-        try:
-            current_user = get_jwt_identity()
-            note = Note.query.get_or_404(note_id)
-            data = request.get_json()
-
-            if note.user_id != current_user:
-                return '', 403  # Forbidden
-
-            note_schema = NoteSchema()
-            updated_note = note_schema.load(data, instance=note)
-            db.session.commit()
-
-            return note_schema.dump(updated_note), 200
-        except Exception as e:
-            return {'message': 'An error occurred while processing your request'}, 500
-
-    @jwt_required()  # Protect this route with JWT
-    def delete(self, note_id):
-        try:
-            current_user = get_jwt_identity()
-            note = Note.query.get_or_404(note_id)
-
-            if note.user_id != current_user:
-                return '', 403  # Forbidden
-
-            db.session.delete(note)
-            db.session.commit()
-
-            return '', 204  # No content
-        except Exception as e:
-            return {'message': 'An error occurred while processing your request'}, 500
-
-
-note_bp.add_url_rule('', view_func=NoteResource.as_view('note'))
-note_bp.add_url_rule('/<int:note_id>', view_func=NoteResource.as_view('single_note'))
-note_bp.add_url_rule('/create', view_func=NoteResource.as_view('create_note'))
-note_bp.add_url_rule('/<int:note_id>/update', view_func=NoteResource.as_view('update_note'))
-note_bp.add_url_rule('/<int:note_id>/delete', view_func=NoteResource.as_view('delete_note'))
+        return note

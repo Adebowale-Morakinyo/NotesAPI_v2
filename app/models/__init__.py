@@ -1,3 +1,4 @@
 from .note import Note
 from .user import User
-# Other models - little reminder lol
+from .tag import Tag
+from .note_tags import note_tags

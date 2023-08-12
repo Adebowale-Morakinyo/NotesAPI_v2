@@ -13,7 +13,7 @@ from flask_jwt_extended.exceptions import JWTDecodeError
 
 from app.models import User
 from app.schemas.user import UserRegistrationSchema
-from app import db
+from db import db
 from passlib.hash import pbkdf2_sha256
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/users')

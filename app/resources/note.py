@@ -62,10 +62,16 @@ class NoteResource(MethodView):
 
 @note_blp.route("/note")
 class NoteList(MethodView):
+    @jwt_required()
     @note_blp.arguments(NoteSchema)
     @note_blp.response(201, NoteSchema)
     def post(self, note_data):
+        current_user = get_jwt_identity()
         note = Note(**note_data)
+
+        # Check if the note belongs to the current user
+        if note.user_id != current_user:
+            abort(403, message="You are not authorized to update this note.")
 
         try:
             db.session.add(note)

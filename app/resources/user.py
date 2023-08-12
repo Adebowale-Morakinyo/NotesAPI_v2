@@ -1,11 +1,13 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required, get_raw_jwt, create_access_token, jwt_manager, blacklist, JWTDecodeError
+from flask_jwt_extended import jwt_required, get_jwt, create_access_token
+from flask_jwt_extended.exceptions import JWTDecodeError
+from flask import jsonify
 
 from app.models import User
 from app.schamas import UserSchema, UserRegistrationSchema
 from app import db
-from passlib.hash import pbkdf2_sha256
+from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")
 
@@ -24,7 +26,7 @@ class UserResource(MethodView):
 @user_blp.route("/register")
 class UserRegistration(MethodView):
     @user_blp.arguments(UserRegistrationSchema)
-    @user_blp.response(201, UserSchema)
+    @user_blp.response(201,description="User created successfully.")
     def post(self, user_data):
         try:
             existing_user = User.query.filter_by(username=user_data["username"]).first()
@@ -40,7 +42,7 @@ class UserRegistration(MethodView):
             db.session.add(user)
             db.session.commit()
 
-            return user, 201
+            return {"message": "User created successfully."}, 201
         except Exception as e:
             abort(500, message="An error occurred while processing your request")
 
@@ -54,7 +56,7 @@ class UserLogin(MethodView):
             user = User.query.filter_by(username=user_data["username"]).first()
             if user and user.check_password(user_data["password"]):
                 access_token = create_access_token(identity=user.id)
-                return {"access_token": access_token}
+                return jsonify({"access_token": access_token})
             else:
                 abort(401, message="Invalid username or password")
         except Exception as e:
@@ -67,8 +69,8 @@ class UserLogout(MethodView):
     @user_blp.response(200, description="Logged out successfully")
     def post(self):
         try:
-            jti = get_raw_jwt()["jti"]
-            blacklist.add(jti)
+            jti = get_jwt()["jti"]
+            BLOCKLIST.add(jti)
             return {"message": "Logged out successfully"}
         except JWTDecodeError:
             abort(500, message="An error occurred while processing your request")

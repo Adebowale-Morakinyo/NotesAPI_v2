@@ -1,4 +1,4 @@
-flask
+FLask
 Flask-JWT-Extended
 Flask-Smorest
 Flask-SQLAlchemy

@@ -113,9 +113,10 @@ class NoteList(MethodView):
 
         logging.debug(f"Notes Items: {notes.items}")
 
-        note_schema = NoteSchema(many=True)
+        serialized_notes = NoteSchema(many=True, exclude=("tags",)).dump(notes.items)
+
         return {
-            "notes": note_schema.dump(notes.items),
+            "notes": serialized_notes,
             "page": notes.page,
             "per_page": notes.per_page,
             "total_pages": notes.pages,

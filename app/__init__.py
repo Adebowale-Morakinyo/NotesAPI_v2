@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+import logging
 
 from db import db
 from .blocklist import BLOCKLIST
@@ -10,6 +11,9 @@ jwt = JWTManager()
 def create_app(config_name="development"):
     app = Flask(__name__)
     app.config.from_object(f"config.{config_name.capitalize()}Config")
+
+    # Configure logging
+    logging.basicConfig(level=logging.DEBUG)
 
     db.init_app(app)
     jwt.init_app(app)

@@ -3,6 +3,8 @@ from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
+import logging
+from flask import request
 
 from db import db
 from app.models import Note, Tag
@@ -84,20 +86,23 @@ class NoteList(MethodView):
 
     @jwt_required()
     @note_blp.response(200, NoteSchema(many=True))
-    def get(self, query_params):
+    def get(self):
         current_user = get_jwt_identity()
 
-        page = query_params.get("page", 1, type=int)
-        per_page = query_params.get("per_page", 10, type=int)
-        sort_by = query_params.get("sort_by", "date")
-        order = query_params.get("order", "desc")
-        tag = query_params.get("tag")
+        page = request.args.get("page", 1, type=int)
+        per_page = request.args.get("per_page", 10, type=int)
+        sort_by = request.args.get("sort_by", "date")
+        order = request.args.get("order", "desc")
+        tag = request.args.get("tag")
 
-        # Build the query based on the query parameters and user identity
-        query = Note.query.join(Note.tags).filter(Note.user_id == current_user)
+        logging.debug(f"Page: {page}, Per Page: {per_page}, Tag: {tag}")
+
+        query = Note.query.filter_by(user_id=current_user)
 
         if tag:
-            query = query.filter(func.lower(Tag.name).ilike(f"%{tag.lower()}%"))
+            query = query.filter(func.lower(Note.tags).ilike(f"%{tag.lower()}%"))
+
+        logging.debug(f"Query: {query}")
 
         if sort_by == "date":
             query = query.order_by(Note.date.desc() if order == "desc" else Note.date)
@@ -105,6 +110,9 @@ class NoteList(MethodView):
             query = query.order_by(Note.title.desc() if order == "desc" else Note.title)
 
         notes = query.paginate(page=page, per_page=per_page, error_out=False)
+
+        logging.debug(f"Notes Items: {notes.items}")
+
         note_schema = NoteSchema(many=True)
         return {
             "notes": note_schema.dump(notes.items),

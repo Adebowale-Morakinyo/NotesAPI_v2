@@ -8,22 +8,24 @@ class UserSchema(Schema):
     password = fields.Str(required=True, load_only=True)
 
 
+class TagSchema(Schema):
+    id = fields.Int(dump_only=True)
+    name = fields.Str(required=True)
+
+
 class NoteSchema(Schema):
     id = fields.Int(dump_only=True)
     title = fields.Str(required=True)
     content = fields.Str(required=True)
+    date = fields.DateTime(dump_only=True)
     user_id = fields.Int(required=True, load_only=True)
     user = fields.Nested(UserSchema(), dump_only=True)
+    tags = fields.Nested(TagSchema(), many=True, dump_only=True)
 
 
 class NoteUpdateSchema(Schema):
     title = fields.Str()
     content = fields.Str()
-
-
-class TagSchema(Schema):
-    id = fields.Int(dump_only=True)
-    name = fields.Str(required=True)
 
 
 class NoteTagSchema(Schema):

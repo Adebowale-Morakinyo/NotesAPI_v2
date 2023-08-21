@@ -100,7 +100,7 @@ class NoteList(MethodView):
         query = Note.query.filter_by(user_id=current_user)
 
         if tag:
-            query = query.filter(func.lower(Note.tags).ilike(f"%{tag.lower()}%"))
+            query = query.join(Note.tags).filter(func.lower(Tag.name) == tag.lower())
 
         logging.debug(f"Query: {query}")
 

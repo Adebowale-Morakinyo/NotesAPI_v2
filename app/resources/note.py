@@ -2,9 +2,10 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from sqlalchemy import func
 
 from db import db
-from app.models import Note
+from app.models import Note, Tag
 from app.schamas import NoteSchema, NoteUpdateSchema
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")
@@ -93,10 +94,10 @@ class NoteList(MethodView):
         tag = query_params.get("tag")
 
         # Build the query based on the query parameters and user identity
-        query = Note.query.filter_by(user_id=current_user)
+        query = Note.query.join(Note.tags).filter(Note.user_id == current_user)
 
         if tag:
-            query = query.filter(Note.tags.ilike(f"%{tag}%"))
+            query = query.filter(func.lower(Tag.name).ilike(f"%{tag.lower()}%"))
 
         if sort_by == "date":
             query = query.order_by(Note.date.desc() if order == "desc" else Note.date)

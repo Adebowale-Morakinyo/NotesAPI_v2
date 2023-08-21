@@ -104,7 +104,7 @@ class NoteList(MethodView):
         elif sort_by == "title":
             query = query.order_by(Note.title.desc() if order == "desc" else Note.title)
 
-        notes = query.paginate(page, per_page, error_out=False)
+        notes = query.paginate(page=page, per_page=per_page, error_out=False)
         note_schema = NoteSchema(many=True)
         return {
             "notes": note_schema.dump(notes.items),

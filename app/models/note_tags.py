@@ -1,4 +1,4 @@
-from app import db
+from db import db
 
 note_tags = db.Table(
     'note_tags',

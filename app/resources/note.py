@@ -97,6 +97,7 @@ class NoteList(MethodView):
 
         logging.debug(f"Page: {page}, Per Page: {per_page}, Tag: {tag}")
 
+        # Build the query based on the query parameters and user identity
         query = Note.query.filter_by(user_id=current_user)
 
         if tag:
@@ -109,7 +110,7 @@ class NoteList(MethodView):
         elif sort_by == "title":
             query = query.order_by(Note.title.desc() if order == "desc" else Note.title)
 
-        notes = query.paginate(page=page, per_page=per_page, error_out=False)
+        notes = query.options(db.joinedload(Note.tags)).paginate(page=page, per_page=per_page, error_out=False)
 
         logging.debug(f"Notes Items: {notes.items}")
 

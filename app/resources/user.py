@@ -6,7 +6,7 @@ from flask import jsonify
 
 from app.models import User
 from app.schamas import UserSchema, UserRegistrationSchema
-from app import db
+from db import db
 from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")

@@ -85,7 +85,6 @@ class NoteList(MethodView):
         return note
 
     @jwt_required()
-    @note_blp.response(200, NoteSchema(many=True))
     def get(self):
         current_user = get_jwt_identity()
 

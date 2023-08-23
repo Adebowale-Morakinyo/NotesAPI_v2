@@ -1,13 +1,11 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
-
 from db import db
 from app.models import Tag, Note
 from app.schamas import TagSchema, NoteTagSchema
 
 tag_blp = Blueprint("Tags", "tags", description="Operations on tags")
-
 
 @tag_blp.route("/tag/<int:tag_id>")
 class TagResource(MethodView):
@@ -15,7 +13,6 @@ class TagResource(MethodView):
     def get(self, tag_id):
         tag = Tag.query.get_or_404(tag_id)
         return tag
-
 
 @tag_blp.route("/tag")
 class TagList(MethodView):
@@ -36,13 +33,15 @@ class TagList(MethodView):
 
         return tag
 
-
 @tag_blp.route("/tag/<int:note_id>/note/<int:tag_id>")
 class LinkTagsToNote(MethodView):
     @tag_blp.response(201, TagSchema)
     def post(self, tag_id, note_id):
         tag = Tag.query.get_or_404(tag_id)
         note = Note.query.get_or_404(note_id)
+
+        if tag in note.tags:
+            abort(400, message="Tag is already linked to this note.")
 
         note.tags.append(tag)
 
@@ -58,6 +57,9 @@ class LinkTagsToNote(MethodView):
     def delete(self, tag_id, note_id):
         tag = Tag.query.get_or_404(tag_id)
         note = Note.query.get_or_404(note_id)
+
+        if tag not in note.tags:
+            abort(400, message="Tag is not linked to this note.")
 
         note.tags.remove(tag)
 

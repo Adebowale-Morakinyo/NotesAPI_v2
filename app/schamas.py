@@ -29,6 +29,7 @@ class NoteUpdateSchema(Schema):
 
 
 class NoteTagSchema(Schema):
+    message = fields.Str()
     note_id = fields.Int(required=True, load_only=True)
     tag_id = fields.Int(required=True, load_only=True)
 

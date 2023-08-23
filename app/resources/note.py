@@ -74,7 +74,15 @@ class NoteList(MethodView):
 
         # Check if the note belongs to the current user
         if note.user_id != current_user:
-            abort(403, message="You are not authorized to update this note.")
+            abort(403, message="You are not authorized to create note.")
+
+        # Check if a note with the same title already exists for the current user
+        existing_note = Note.query.filter_by(user_id=current_user, title=note_data["title"]).first()
+        if existing_note:
+            abort(400, message="A note with the same title already exists.")
+
+        note = Note(**note_data)
+        note.user_id = current_user
 
         try:
             db.session.add(note)

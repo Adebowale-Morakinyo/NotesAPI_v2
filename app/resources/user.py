@@ -6,7 +6,6 @@ from flask import jsonify
 
 from app.models import User
 from app.schamas import UserSchema, UserRegistrationSchema
-from db import db
 from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")
@@ -39,8 +38,7 @@ class UserRegistration(MethodView):
 
             user = User(**user_data)
             user.set_password(user_data["password"])  # Hash the password
-            db.session.add(user)
-            db.session.commit()
+            user.save_to_db()
 
             return {"message": "User created successfully."}, 201
         except Exception as e:

@@ -7,12 +7,14 @@ from app.schamas import TagSchema, NoteTagSchema
 
 tag_blp = Blueprint("Tags", "tags", description="Operations on tags")
 
+
 @tag_blp.route("/tag/<int:tag_id>")
 class TagResource(MethodView):
     @tag_blp.response(200, TagSchema)
     def get(self, tag_id):
         tag = Tag.query.get_or_404(tag_id)
         return tag
+
 
 @tag_blp.route("/tag")
 class TagList(MethodView):
@@ -26,12 +28,12 @@ class TagList(MethodView):
         tag = Tag(**tag_data)
 
         try:
-            db.session.add(tag)
-            db.session.commit()
+            tag.save_to_db()
         except SQLAlchemyError:
             abort(500, message="An error occurred while inserting the tag.")
 
         return tag
+
 
 @tag_blp.route("/tag/<int:note_id>/note/<int:tag_id>")
 class LinkTagsToNote(MethodView):
@@ -46,8 +48,7 @@ class LinkTagsToNote(MethodView):
         note.tags.append(tag)
 
         try:
-            db.session.add(note)
-            db.session.commit()
+            tag.save_to_db()
         except SQLAlchemyError:
             abort(500, message="An error occurred while linking the tag to the note.")
 
@@ -64,8 +65,7 @@ class LinkTagsToNote(MethodView):
         note.tags.remove(tag)
 
         try:
-            db.session.add(note)
-            db.session.commit()
+            note.save_to_db()
         except SQLAlchemyError:
             abort(500, message="An error occurred while removing the tag from the note.")
 

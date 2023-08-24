@@ -35,8 +35,7 @@ class NoteResource(MethodView):
         if note.user_id != current_user:
             abort(403, message="You are not authorized to delete this note.")
 
-        db.session.delete(note)
-        db.session.commit()
+        note.delete_from_db()
         return {"message": "Note deleted."}
 
     @jwt_required()
@@ -57,8 +56,7 @@ class NoteResource(MethodView):
         else:
             note = Note(id=note_id, **note_data)
 
-        db.session.add(note)
-        db.session.commit()
+        note.save_to_db()
 
         return note
 
@@ -85,8 +83,7 @@ class NoteList(MethodView):
         note.user_id = current_user
 
         try:
-            db.session.add(note)
-            db.session.commit()
+            note.save_to_db()
         except SQLAlchemyError:
             abort(500, message="An error occurred while inserting the note.")
 

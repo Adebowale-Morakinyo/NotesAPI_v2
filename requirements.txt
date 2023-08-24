@@ -1,0 +1,7 @@
+FLask
+Flask-JWT-Extended
+Flask-Smorest
+Flask-SQLAlchemy
+passlib
+marshmallow
+python-dotenv

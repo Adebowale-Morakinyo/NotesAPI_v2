@@ -16,3 +16,11 @@ class Note(db.Model):
 
     # Define tags relationship (many-to-many)
     tags = db.relationship('Tag', secondary='note_tags', back_populates='notes')
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()

@@ -13,9 +13,12 @@ class User(db.Model):
     # Define notes relationship
     notes = db.relationship('Note', back_populates='user')
 
-    @classmethod
-    def save_to_db(cls):
-        db.session.add(cls)
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
         db.session.commit()
 
     def set_password(self, password):

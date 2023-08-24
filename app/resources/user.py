@@ -2,10 +2,9 @@ from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from flask_jwt_extended import jwt_required, get_jwt, create_access_token
 from flask_jwt_extended.exceptions import JWTDecodeError
-from flask import jsonify
 
 from app.models import User
-from app.schamas import UserSchema, UserRegistrationSchema
+from app.schamas import UserSchema, UserRegistrationSchema, UserLoginResponseSchema
 from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")
@@ -48,13 +47,13 @@ class UserRegistration(MethodView):
 @user_blp.route("/login")
 class UserLogin(MethodView):
     @user_blp.arguments(UserRegistrationSchema(only=("username", "password")))
-    @user_blp.response(200, {"access_token": str})
+    @user_blp.response(200, UserLoginResponseSchema)
     def post(self, user_data):
         try:
             user = User.query.filter_by(username=user_data["username"]).first()
             if user and user.check_password(user_data["password"]):
                 access_token = create_access_token(identity=user.id)
-                return jsonify({"access_token": access_token})
+                return {"access_token": access_token}
             else:
                 abort(401, message="Invalid username or password")
         except Exception as e:

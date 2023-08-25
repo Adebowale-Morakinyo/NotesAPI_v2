@@ -127,3 +127,30 @@ class NoteList(MethodView):
             "total_pages": notes.pages,
             "total_notes": notes.total,
         }, 200
+
+
+@note_blp.route("/note/<int:note_id>/favorite")
+class FavoriteNoteResource(MethodView):
+    @jwt_required()
+    @note_blp.response(200, NoteSchema)
+    def post(self, note_id):
+        current_user = get_jwt_identity()
+        note = Note.query.get_or_404(note_id)
+
+        if note.user_id != current_user:
+            abort(403, message="You are not authorized to mark this note as a favorite.")
+
+        note.is_favorite = True
+        note.save_to_db()
+
+        return note
+
+
+@note_blp.route("/favorites")
+class FavoriteNotesList(MethodView):
+    @jwt_required()
+    @note_blp.response(200, NoteSchema(many=True))
+    def get(self):
+        current_user = get_jwt_identity()
+        favorite_notes = Note.query.filter_by(user_id=current_user, is_favorite=True).all()
+        return favorite_notes

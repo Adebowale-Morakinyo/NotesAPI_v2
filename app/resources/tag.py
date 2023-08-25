@@ -35,7 +35,7 @@ class TagList(MethodView):
         return tag
 
 
-@tag_blp.route("/tag/<int:note_id>/note/<int:tag_id>")
+@tag_blp.route("/tag/<int:tag_id>/note/<int:note_id>")
 class LinkTagsToNote(MethodView):
     @tag_blp.response(201, TagSchema)
     def post(self, tag_id, note_id):

@@ -9,6 +9,9 @@ class User(db.Model):
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
+    full_name = db.Column(db.String(120))
+    profile_picture = db.Column(db.String(200))
+    bio = db.Column(db.String(200))
 
     # Define notes relationship
     notes = db.relationship('Note', back_populates='user')

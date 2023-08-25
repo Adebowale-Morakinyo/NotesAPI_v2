@@ -47,3 +47,11 @@ class UserRegistrationSchema(Schema):
 
 class UserLoginResponseSchema(Schema):
     access_token = fields.Str()
+
+
+class UserProfileSchema(Schema):
+    username = fields.Str(dump_only=True)
+    email = fields.Email(dump_only=True)
+    full_name = fields.Str(required=True)
+    profile_picture = fields.Str()  # Field for profile picture URL
+    bio = fields.Str() 

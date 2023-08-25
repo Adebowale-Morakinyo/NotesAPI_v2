@@ -54,4 +54,4 @@ class UserProfileSchema(Schema):
     email = fields.Email(dump_only=True)
     full_name = fields.Str(required=True)
     profile_picture = fields.Str()  # Field for profile picture URL
-    bio = fields.Str() 
+    bio = fields.Str()

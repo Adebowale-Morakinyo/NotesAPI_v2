@@ -1,10 +1,10 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required, get_jwt, create_access_token
+from flask_jwt_extended import jwt_required, get_jwt, create_access_token, get_jwt_identity
 from flask_jwt_extended.exceptions import JWTDecodeError
 
 from app.models import User
-from app.schamas import UserSchema, UserRegistrationSchema, UserLoginResponseSchema
+from app.schamas import UserSchema, UserRegistrationSchema, UserLoginResponseSchema, UserProfileSchema
 from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")
@@ -71,3 +71,26 @@ class UserLogout(MethodView):
             return {"message": "Logged out successfully"}
         except JWTDecodeError:
             abort(500, message="An error occurred while processing your request")
+
+
+@user_blp.route("/profile")
+class UserProfile(MethodView):
+    @jwt_required()
+    @user_blp.response(200, UserProfileSchema)
+    def get(self):
+        current_user = get_jwt_identity()
+        user = User.query.get(current_user)
+        return user
+
+    @jwt_required()
+    @user_blp.arguments(UserProfileSchema(partial=True))
+    @user_blp.response(200, UserProfileSchema)
+    def put(self, user_data):
+        current_user = get_jwt_identity()
+        user = User.query.get(current_user)
+
+        for field in user_data:
+            setattr(user, field, user_data[field])
+
+        user.save_to_db()
+        return user

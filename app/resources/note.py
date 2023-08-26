@@ -5,10 +5,12 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from sqlalchemy import func
 import logging
 from flask import request
+import secrets
 
 from db import db
 from app.models import Note, Tag
 from app.schamas import NoteSchema, NoteUpdateSchema, ShareViaEmailSchema
+from app.email import send_email
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")
 
@@ -154,3 +156,40 @@ class FavoriteNotesList(MethodView):
         current_user = get_jwt_identity()
         favorite_notes = Note.query.filter_by(user_id=current_user, is_favorite=True).all()
         return favorite_notes
+
+
+@note_blp.route("/note/<int:note_id>/shareable-link")
+class ShareableLinkResource(MethodView):
+    @jwt_required()
+    @note_blp.response(200, NoteSchema)
+    def post(self, note_id):
+        current_user = get_jwt_identity()
+        note = Note.query.get_or_404(note_id)
+
+        if note.user_id != current_user:
+            abort(403, message="You are not authorized to generate a shareable link for this note.")
+
+        shareable_link = secrets.token_urlsafe(20)
+        note.shareable_link = shareable_link
+        note.save_to_db()
+
+        return note
+
+
+@note_blp.route("/note/<int:note_id>/share-via-email")
+class ShareViaEmailResource(MethodView):
+    @jwt_required()
+    @note_blp.arguments(ShareViaEmailSchema)
+    @note_blp.response(200, description="Note shared successfully.")
+    def post(self, note_data, note_id):
+        current_user = get_jwt_identity()
+        note = Note.query.get_or_404(note_id)
+
+        if note.user_id != current_user:
+            abort(403, message="You are not authorized to share this note.")
+
+        recipient_email = note_data["email"]
+        # Send an email to the recipient with the shareable link
+        send_email(recipient_email, "Note Sharing", f"Here's the shareable link: {note.shareable_link}")
+
+        return {"message": "Note shared successfully."}

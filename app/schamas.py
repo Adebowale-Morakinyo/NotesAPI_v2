@@ -55,3 +55,7 @@ class UserProfileSchema(Schema):
     full_name = fields.Str(required=True)
     profile_picture = fields.Str()  # Field for profile picture URL
     bio = fields.Str()
+
+
+class ShareViaEmailSchema(Schema):
+    email = fields.Email(required=True)

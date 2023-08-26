@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from flask_mail import Mail
 import logging
 
 from db import db
@@ -18,6 +19,7 @@ def create_app(config_name="development"):
     db.init_app(app)
     jwt.init_app(app)
 
+    mail = Mail(app)
     api = Api(app)
 
     from .resources.note import note_blp

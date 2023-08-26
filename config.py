@@ -8,6 +8,13 @@ class BaseConfig:
     SQLALCHEMY_DATABASE_URI = "sqlite:///data.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = "your-secret-key"
+    MAIL_SERVER = 'smtp.mailgun.org'
+    MAIL_PORT = 587
+    MAIL_USE_TLS = True
+    MAIL_USERNAME = 'your-mailgun-username'
+    MAIL_PASSWORD = 'your-mailgun-password'
+    MAIL_DEFAULT_SENDER = 'your-sender-email@example.com'
+
 
 
 class DevelopmentConfig(BaseConfig):

@@ -10,6 +10,7 @@ class Note(db.Model):
     content = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, default=datetime.utcnow)
     is_favorite = db.Column(db.Boolean, default=False)
+    shareable_link = db.Column(db.String(255), unique=True)
 
     # Define user relationship
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

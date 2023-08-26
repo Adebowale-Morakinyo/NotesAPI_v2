@@ -2,6 +2,7 @@ FLask
 Flask-JWT-Extended
 Flask-Smorest
 Flask-SQLAlchemy
+Flask-Mail
 passlib
 marshmallow
 python-dotenv

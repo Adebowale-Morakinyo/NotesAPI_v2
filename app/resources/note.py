@@ -8,7 +8,7 @@ from flask import request
 
 from db import db
 from app.models import Note, Tag
-from app.schamas import NoteSchema, NoteUpdateSchema
+from app.schamas import NoteSchema, NoteUpdateSchema, ShareViaEmailSchema
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")
 

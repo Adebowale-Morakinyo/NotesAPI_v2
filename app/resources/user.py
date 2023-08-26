@@ -4,7 +4,7 @@ from flask_jwt_extended import jwt_required, get_jwt, create_access_token, get_j
 from flask_jwt_extended.exceptions import JWTDecodeError
 
 from app.models import User
-from app.schamas import UserSchema, UserRegistrationSchema, UserLoginResponseSchema, UserProfileSchema
+from app.schemas import UserSchema, UserRegistrationSchema, UserLoginResponseSchema, UserProfileSchema
 from app.blocklist import BLOCKLIST
 
 user_blp = Blueprint("Users", "users", description="Operations on users")

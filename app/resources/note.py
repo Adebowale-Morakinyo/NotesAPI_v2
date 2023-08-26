@@ -9,7 +9,7 @@ import secrets
 
 from db import db
 from app.models import Note, Tag
-from app.schamas import NoteSchema, NoteUpdateSchema, ShareViaEmailSchema
+from app.schemas import NoteSchema, NoteUpdateSchema, ShareViaEmailSchema
 from app.email import send_email
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")

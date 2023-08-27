@@ -3,7 +3,7 @@ from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
 from db import db
 from app.models import Tag, Note
-from app.schemas import TagSchema, NoteTagSchema
+from app.schemas import TagSchema, NoteTagSchema, TagAutocompleteSchema, TagAutocompleteResponseSchema
 
 tag_blp = Blueprint("Tags", "tags", description="Operations on tags")
 
@@ -70,3 +70,14 @@ class LinkTagsToNote(MethodView):
             abort(500, message="An error occurred while removing the tag from the note.")
 
         return {"message": "Tag removed from note", "tag": tag, "note": note}
+
+
+@tag_blp.route("/autocomplete")
+class TagAutocompleteResource(MethodView):
+    @tag_blp.arguments(TagAutocompleteSchema, location="query")
+    @tag_blp.response(200, TagAutocompleteResponseSchema)
+    def get(self, tag_data):
+        query = tag_data["query"]
+        tags = Tag.query.filter(Tag.name.ilike(f"%{query}%")).limit(10).all()
+        tag_names = [tag.name for tag in tags]
+        return {"tags": tag_names}

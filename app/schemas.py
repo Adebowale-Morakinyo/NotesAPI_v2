@@ -59,3 +59,7 @@ class UserProfileSchema(Schema):
 
 class ShareViaEmailSchema(Schema):
     email = fields.Email(required=True)
+
+
+class TagAutocompleteSchema(Schema):
+    query = fields.Str(required=True)

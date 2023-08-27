@@ -193,3 +193,25 @@ class ShareViaEmailResource(MethodView):
         send_email(recipient_email, "Note Sharing", f"Here's the shareable link: {note.shareable_link}")
 
         return {"message": "Note shared successfully."}
+
+
+@note_blp.route("/note/search")
+class SearchNotes(MethodView):
+    @jwt_required()
+    @note_blp.response(200, NoteSchema(many=True))
+    def get(self):
+        current_user = get_jwt_identity()
+        search_query = request.args.get("query")
+
+        if not search_query:
+            abort(400, message="Missing search query.")
+
+        notes = Note.query.filter_by(user_id=current_user).filter(
+            db.or_(
+                Note.title.ilike(f"%{search_query}%"),
+                Note.content.ilike(f"%{search_query}%"),
+                Note.tags.any(Tag.name.ilike(f"%{search_query}%"))
+            )
+        ).all()
+
+        return notes

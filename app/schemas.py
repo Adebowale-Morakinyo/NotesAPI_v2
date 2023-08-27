@@ -63,10 +63,7 @@ class ShareViaEmailSchema(Schema):
 
 class TagAutocompleteSchema(Schema):
     query = fields.Str(required=True)
-<<<<<<< HEAD
-=======
 
 
 class TagAutocompleteResponseSchema(Schema):
     tags = fields.List(fields.Str())
->>>>>>> 7bfe66d (Implement TagAutocompleteSchema and TagAutocompleteResponseSchema in schemas.py)

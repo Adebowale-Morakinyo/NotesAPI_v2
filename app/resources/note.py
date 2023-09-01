@@ -9,7 +9,14 @@ import secrets
 
 from db import db
 from app.models import Note, Tag
-from app.schemas import NoteSchema, NoteListResponseSchema, NoteListSchema, NoteUpdateSchema, ShareViaEmailSchema
+from app.schemas import (
+    NoteSchema,
+    NoteListResponseSchema,
+    NoteListSchema,
+    NoteListQuerySchema,
+    NoteUpdateSchema,
+    ShareViaEmailSchema
+)
 from app.email import send_email
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")
@@ -92,6 +99,7 @@ class NoteList(MethodView):
         return note
 
     @jwt_required()
+    @note_blp.arguments(NoteListQuerySchema, location="query")
     @note_blp.response(200, NoteListResponseSchema)
     def get(self):
         current_user = get_jwt_identity()

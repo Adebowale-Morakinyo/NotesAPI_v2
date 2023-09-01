@@ -52,7 +52,7 @@ class NoteListQuerySchema(Schema):
     order = fields.Str()
     tag = fields.Str()
 
-    
+
 class NoteTagSchema(Schema):
     message = fields.Str()
     note_id = fields.Int(required=True, load_only=True)

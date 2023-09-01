@@ -46,11 +46,11 @@ class NoteListResponseSchema(Schema):
 
 
 class NoteListQuerySchema(Schema):
-    page = fields.Int(missing=1)
-    per_page = fields.Int(missing=10)
-    sort_by = fields.Str()
-    order = fields.Str()
-    tag = fields.Str()
+    page = fields.Int(required=False)
+    per_page = fields.Int(required=False)
+    sort_by = fields.Str(required=False)
+    order = fields.Str(required=False)
+    tag = fields.Str(required=False)
 
 
 class NoteTagSchema(Schema):

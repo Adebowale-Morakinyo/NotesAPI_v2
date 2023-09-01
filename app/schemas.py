@@ -46,8 +46,8 @@ class NoteListResponseSchema(Schema):
 
 
 class NoteListQuerySchema(Schema):
-    page = fields.Int()
-    per_page = fields.Int()
+    page = fields.Int(missing=1)
+    per_page = fields.Int(missing=10)
     sort_by = fields.Str()
     order = fields.Str()
     tag = fields.Str()

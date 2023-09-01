@@ -9,7 +9,7 @@ import secrets
 
 from db import db
 from app.models import Note, Tag
-from app.schemas import NoteSchema, NoteListResponseSchema,NoteUpdateSchema, ShareViaEmailSchema
+from app.schemas import NoteSchema, NoteListResponseSchema, NoteListSchema, NoteUpdateSchema, ShareViaEmailSchema
 from app.email import send_email
 
 note_blp = Blueprint("Notes", "notes", description="Operations on notes")
@@ -121,7 +121,7 @@ class NoteList(MethodView):
 
         logging.debug(f"Notes Items: {notes.items}")
 
-        serialized_notes = NoteSchema(many=True, exclude=("tags",)).dump(notes.items)
+        serialized_notes = NoteListSchema(many=True).dump(notes.items)
 
         return {
             "notes": serialized_notes,

@@ -15,7 +15,8 @@ from app.schemas import (
     NoteListSchema,
     NoteListQuerySchema,
     NoteUpdateSchema,
-    ShareViaEmailSchema
+    ShareViaEmailSchema,
+    v_error
 )
 from app.email import send_email
 
@@ -101,14 +102,29 @@ class NoteList(MethodView):
     @jwt_required()
     @note_blp.arguments(NoteListQuerySchema, location="query")
     @note_blp.response(200, NoteListResponseSchema)
-    def get(self):
+    def get(self, query_params):
+        query_params = NoteListQuerySchema().validate(request.args)
+        print("Query Parameters (Before Loading):", query_params)
+
+        schema = NoteListQuerySchema()
+        try:
+            query_params = schema.load(request.args)
+            print("Query Parameters (After Loading):", query_params)
+        except v_error as e:
+            print("Validation Error:", e.messages)
+
         current_user = get_jwt_identity()
 
-        page = request.args.get("page", 1, type=int)
-        per_page = request.args.get("per_page", 10, type=int)
-        sort_by = request.args.get("sort_by", "date")
-        order = request.args.get("order", "desc")
-        tag = request.args.get("tag")
+        page = query_params.get("page")
+        per_page = query_params.get("per_page")
+        sort_by = query_params.get("sort_by", "date")
+        order = query_params.get("order", "desc")
+        tag = query_params.get("tag")
+
+        if page is None or per_page is None:
+            # Use default values
+            page = 1 if page is None else page
+            per_page = 10 if per_page is None else per_page
 
         logging.debug(f"Page: {page}, Per Page: {per_page}, Tag: {tag}")
 

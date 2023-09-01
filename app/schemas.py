@@ -1,4 +1,6 @@
-from marshmallow import Schema, fields, validate
+from marshmallow import Schema, fields, validate, ValidationError
+
+v_error = ValidationError
 
 
 class UserSchema(Schema):

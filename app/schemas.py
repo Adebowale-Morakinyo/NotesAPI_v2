@@ -45,6 +45,14 @@ class NoteListResponseSchema(Schema):
     total_notes = fields.Int()
 
 
+class NoteListQuerySchema(Schema):
+    page = fields.Int()
+    per_page = fields.Int()
+    sort_by = fields.Str()
+    order = fields.Str()
+    tag = fields.Str()
+
+    
 class NoteTagSchema(Schema):
     message = fields.Str()
     note_id = fields.Int(required=True, load_only=True)

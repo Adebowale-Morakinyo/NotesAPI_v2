@@ -100,10 +100,10 @@ class NoteList(MethodView):
         return note
 
     @jwt_required()
-    @note_blp.arguments(NoteListQuerySchema, location="query")
+    @note_blp.arguments(NoteListQuerySchema, location="query", validation=False)
     @note_blp.response(200, NoteListResponseSchema)
     def get(self, query_params):
-        query_params = NoteListQuerySchema().validate(request.args)
+        # query_params = NoteListQuerySchema().validate(request.args)
         print("Query Parameters (Before Loading):", query_params)
 
         schema = NoteListQuerySchema()

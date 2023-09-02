@@ -28,38 +28,6 @@ class NoteUpdateSchema(Schema):
     content = fields.Str()
 
 
-class NoteListSchema(Schema):
-    id = fields.Int()
-    title = fields.Str()
-    content = fields.Str()
-    date = fields.DateTime()
-    user_id = fields.Int()
-    user = fields.Nested(UserSchema())
-
-
-class NoteListResponseSchema(Schema):
-    notes = fields.List(fields.Nested(NoteListSchema))
-    page = fields.Int()
-    per_page = fields.Int()
-    total_pages = fields.Int()
-    total_notes = fields.Int()
-
-
-class IntOrNoneField(fields.Field):
-    def _deserialize(self, value, attr, data, **kwargs):
-        if value == "":
-            return None
-        return super()._deserialize(value, attr, data, **kwargs)
-
-
-class NoteListQuerySchema(Schema):
-    page = IntOrNoneField()
-    per_page = IntOrNoneField()
-    sort_by = fields.Str()
-    order = fields.Str()
-    tag = fields.Str()
-
-
 class NoteTagSchema(Schema):
     message = fields.Str()
     note_id = fields.Int(required=True, load_only=True)
@@ -99,3 +67,35 @@ class TagAutocompleteSchema(Schema):
 
 class TagAutocompleteResponseSchema(Schema):
     tags = fields.List(fields.Str())
+
+
+class NoteListSchema(Schema):
+    id = fields.Int()
+    title = fields.Str()
+    content = fields.Str()
+    date = fields.DateTime()
+    user_id = fields.Int()
+    user = fields.Nested(UserSchema())
+
+
+class NoteListResponseSchema(Schema):
+    notes = fields.List(fields.Nested(NoteListSchema))
+    page = fields.Int()
+    per_page = fields.Int()
+    total_pages = fields.Int()
+    total_notes = fields.Int()
+
+
+class IntOrNoneField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value == "":
+            return None
+        return super()._deserialize(value, attr, data, **kwargs)
+
+
+class NoteListQuerySchema(Schema):
+    page = IntOrNoneField()
+    per_page = IntOrNoneField()
+    sort_by = fields.Str()
+    order = fields.Str()
+    tag = fields.Str()

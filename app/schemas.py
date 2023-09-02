@@ -45,6 +45,21 @@ class NoteListResponseSchema(Schema):
     total_notes = fields.Int()
 
 
+class IntOrNoneField(fields.Field):
+    def _deserialize(self, value, attr, data, **kwargs):
+        if value == "":
+            return None
+        return super()._deserialize(value, attr, data, **kwargs)
+
+
+class NoteListQuerySchema(Schema):
+    page = IntOrNoneField()
+    per_page = IntOrNoneField()
+    sort_by = fields.Str()
+    order = fields.Str()
+    tag = fields.Str()
+
+
 class NoteTagSchema(Schema):
     message = fields.Str()
     note_id = fields.Int(required=True, load_only=True)

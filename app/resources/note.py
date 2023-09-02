@@ -99,16 +99,23 @@ class NoteList(MethodView):
         return note
 
     @jwt_required()
-    @note_blp.arguments(NoteListQuerySchema, location="query")
+    @note_blp.arguments(NoteListQuerySchema, location="query", validate=False)
     @note_blp.response(200, NoteListResponseSchema)
-    def get(self):
+    def get(self, query_params):
         current_user = get_jwt_identity()
 
-        page = request.args.get("page", 1, type=int)
-        per_page = request.args.get("per_page", 10, type=int)
-        sort_by = request.args.get("sort_by", "date")
-        order = request.args.get("order", "desc")
-        tag = request.args.get("tag")
+        # Convert empty string values to None
+        page = query_params.get("page", None)
+        per_page = query_params.get("per_page", None)
+        sort_by = query_params.get("sort_by", "date")
+        order = query_params.get("order", "desc")
+        tag = query_params.get("tag")
+
+        # Handle defaults if values are None
+        if page is None:
+            page = 1
+        if per_page is None:
+            per_page = 10
 
         logging.debug(f"Page: {page}, Per Page: {per_page}, Tag: {tag}")
 

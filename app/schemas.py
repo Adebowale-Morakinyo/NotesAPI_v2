@@ -47,6 +47,7 @@ class UserRegistrationSchema(Schema):
 
 class UserLoginResponseSchema(Schema):
     access_token = fields.Str()
+    refresh_token = fields.Str()
 
 
 class UserProfileSchema(Schema):

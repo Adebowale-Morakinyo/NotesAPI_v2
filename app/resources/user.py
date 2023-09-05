@@ -67,6 +67,18 @@ class UserLogin(MethodView):
             abort(500, message="An error occurred while processing your request")
 
 
+@user_blp.route("/refresh")
+class TokenRefresh(MethodView):
+    @jwt_required(refresh=True)
+    def post(self):
+        current_user = get_jwt_identity()
+        new_token = create_access_token(identity=current_user, fresh=False)
+        # Make it clear that when to add the refresh token to the blocklist will depend on the app design
+        jti = get_jwt()["jti"]
+        BLOCKLIST.add(jti)
+        return {"access_token": new_token}, 200
+
+
 @user_blp.route("/logout")
 class UserLogout(MethodView):
     @jwt_required()  # Protect this route with JWT

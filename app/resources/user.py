@@ -58,8 +58,9 @@ class UserLogin(MethodView):
         try:
             user = User.query.filter_by(username=user_data["username"]).first()
             if user and user.check_password(user_data["password"]):
-                access_token = create_access_token(identity=user.id)
-                return {"access_token": access_token}
+                access_token = create_access_token(identity=user.id, fresh=True)
+                refresh_token = create_refresh_token(user.id)
+                return {"access_token": access_token, "refresh_token": refresh_token}, 200
             else:
                 abort(401, message="Invalid username or password")
         except Exception as e:

@@ -1,6 +1,12 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
-from flask_jwt_extended import jwt_required, get_jwt, create_access_token, get_jwt_identity
+from flask_jwt_extended import (
+    jwt_required,
+    get_jwt,
+    create_access_token,
+    get_jwt_identity,
+    create_refresh_token
+)
 from flask_jwt_extended.exceptions import JWTDecodeError
 
 from app.models import User

@@ -68,7 +68,7 @@ class UserLogout(MethodView):
         try:
             jti = get_jwt()["jti"]
             BLOCKLIST.add(jti)
-            return {"message": "Logged out successfully"}
+            return {"message": "Logged out successfully"}, 200
         except JWTDecodeError:
             abort(500, message="An error occurred while processing your request")
 

@@ -81,7 +81,7 @@ class TokenRefresh(MethodView):
 
 @user_blp.route("/logout")
 class UserLogout(MethodView):
-    @jwt_required()  # Protect this route with JWT
+    @jwt_required(fresh=True)  # Protect this route with JWT
     @user_blp.response(200, description="Logged out successfully")
     def post(self):
         try:

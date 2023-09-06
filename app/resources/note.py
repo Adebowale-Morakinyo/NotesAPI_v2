@@ -72,7 +72,7 @@ class NoteResource(MethodView):
 
 @note_blp.route("/note")
 class NoteList(MethodView):
-    @jwt_required()
+    @jwt_required(fresh=True)
     @note_blp.arguments(NoteSchema)
     @note_blp.response(201, NoteSchema)
     def post(self, note_data):

@@ -35,7 +35,7 @@ class NoteResource(MethodView):
 
         return note
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     def delete(self, note_id):
         current_user = get_jwt_identity()
         note = Note.query.get_or_404(note_id)

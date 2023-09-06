@@ -47,7 +47,7 @@ class NoteResource(MethodView):
         note.delete_from_db()
         return {"message": "Note deleted."}
 
-    @jwt_required()
+    @jwt_required(fresh=True)
     @note_blp.arguments(NoteUpdateSchema)
     @note_blp.response(200, NoteSchema)
     def put(self, note_data, note_id):

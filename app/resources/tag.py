@@ -1,7 +1,8 @@
 from flask.views import MethodView
 from flask_smorest import Blueprint, abort
 from sqlalchemy.exc import SQLAlchemyError
-from db import db
+from flask_jwt_extended import jwt_required
+
 from app.models import Tag, Note
 from app.schemas import TagSchema, NoteTagSchema, TagAutocompleteSchema, TagAutocompleteResponseSchema
 
@@ -37,6 +38,7 @@ class TagList(MethodView):
 
 @tag_blp.route("/tag/<int:tag_id>/note/<int:note_id>")
 class LinkTagsToNote(MethodView):
+    @jwt_required(fresh=True)
     @tag_blp.response(201, TagSchema)
     def post(self, tag_id, note_id):
         tag = Tag.query.get_or_404(tag_id)

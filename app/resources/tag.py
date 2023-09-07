@@ -56,6 +56,7 @@ class LinkTagsToNote(MethodView):
 
         return tag
 
+    @jwt_required(fresh=True)
     @tag_blp.response(200, NoteTagSchema)
     def delete(self, tag_id, note_id):
         tag = Tag.query.get_or_404(tag_id)

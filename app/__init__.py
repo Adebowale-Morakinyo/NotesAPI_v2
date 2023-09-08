@@ -1,6 +1,7 @@
 from flask import Flask, jsonify
 from flask_smorest import Api
 from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
 import logging
 
 from db import db
@@ -20,6 +21,7 @@ def create_app(config_name="development"):
 
     mail.init_app(app)
 
+    migrate = Migrate(app, db)
     api = Api(app)
 
     from .resources.note import note_blp

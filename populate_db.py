@@ -13,7 +13,7 @@ app = create_app()
 app.app_context().push()
 
 # Initialize the database
-from app.db import db
+from db import db
 db.init_app(app)
 
 # Create a Faker instance for generating fake data
@@ -25,7 +25,7 @@ for _ in range(5):  # Create 5 users
         username=fake.user_name(),
         email=fake.email(),
         full_name=fake.name(),
-        password=fake.password(),  # You might want to hash the password
+        password=fake.password(),
     )
     db.session.add(user)
 

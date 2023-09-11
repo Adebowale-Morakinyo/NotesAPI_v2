@@ -14,7 +14,6 @@ app.app_context().push()
 
 # Initialize the database
 from db import db
-db.init_app(app)
 
 # Create a Faker instance for generating fake data
 fake = Faker()
